@@ -1,5 +1,10 @@
+const isFirefox = typeof browser !== 'undefined';
+const api = isFirefox ? browser : chrome;
+
+const CLIENT_ID = '924033159870-g4guhjc65ps1i7vbqcgteai666hv04pb.apps.googleusercontent.com';
+const GMAIL_SCOPES = ['https://www.googleapis.com/auth/gmail.readonly'];
 const GMAIL_API = 'https://www.googleapis.com/gmail/v1/users/me';
-const DEFAULT_QUERY = 'is:unread newer_than:1h (subject:code OR subject:verify OR subject:OTP OR subject:authentication OR subject:confirmation)';
+const DEFAULT_QUERY = 'is:unread newer_than:1h (subject:code OR subject:verify OR subject:verification OR subject:OTP OR subject:"one-time" OR subject:authentication OR subject:confirmation OR subject:security)';
 const AI_EMAIL_SCAN_COUNT = 5;
 
 // DOM
@@ -17,7 +22,7 @@ const apiKeyInput = document.getElementById('apiKey');
 const saveSettingsBtn = document.getElementById('saveSettings');
 
 // Load saved settings on open
-chrome.storage.local.get(['aiEnabled', 'aiProvider', 'apiKey'], (data) => {
+api.storage.local.get(['aiEnabled', 'aiProvider', 'apiKey'], (data) => {
   aiToggle.checked = !!data.aiEnabled;
   aiProviderSelect.value = data.aiProvider || 'claude';
   apiKeyInput.value = data.apiKey || '';
@@ -33,7 +38,7 @@ aiToggle.addEventListener('change', () => {
 });
 
 saveSettingsBtn.addEventListener('click', () => {
-  chrome.storage.local.set({
+  api.storage.local.set({
     aiEnabled: aiToggle.checked,
     aiProvider: aiProviderSelect.value,
     apiKey: apiKeyInput.value,
@@ -73,6 +78,10 @@ retrieveBtn.addEventListener('click', async () => {
 // ── Auth ─────────────────────────────────────────────────────────────────────
 
 function getAuthToken() {
+  return isFirefox ? getAuthTokenFirefox() : getAuthTokenChrome();
+}
+
+function getAuthTokenChrome() {
   return new Promise((resolve, reject) => {
     chrome.identity.getAuthToken({ interactive: true }, (token) => {
       if (chrome.runtime.lastError) {
@@ -82,6 +91,25 @@ function getAuthToken() {
       }
     });
   });
+}
+
+async function getAuthTokenFirefox() {
+  const redirectUrl = browser.identity.getRedirectURL();
+  const authUrl = new URL('https://accounts.google.com/o/oauth2/auth');
+  authUrl.searchParams.set('client_id', CLIENT_ID);
+  authUrl.searchParams.set('redirect_uri', redirectUrl);
+  authUrl.searchParams.set('response_type', 'token');
+  authUrl.searchParams.set('scope', GMAIL_SCOPES.join(' '));
+
+  const responseUrl = await browser.identity.launchWebAuthFlow({
+    url: authUrl.toString(),
+    interactive: true,
+  });
+
+  const params = new URLSearchParams(new URL(responseUrl).hash.slice(1));
+  const token = params.get('access_token');
+  if (!token) throw new Error('Failed to get access token.');
+  return token;
 }
 
 // ── Gmail API ─────────────────────────────────────────────────────────────────
@@ -249,7 +277,7 @@ async function askOpenAI(prompt, apiKey) {
 
 function loadSettings() {
   return new Promise((resolve) => {
-    chrome.storage.local.get(['aiEnabled', 'aiProvider', 'apiKey'], resolve);
+    api.storage.local.get(['aiEnabled', 'aiProvider', 'apiKey'], resolve);
   });
 }
 
