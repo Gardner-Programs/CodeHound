@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      width: 320px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 14px;
+      color: #e8e8e8;
+      background: #1a1a1a;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 16px;
+      border-bottom: 1px solid #2e2e2e;
+    }
+    .header img { width: 28px; height: 28px; }
+    .header h1 { font-size: 17px; font-weight: 700; color: #f0f0f0; }
+    .settings-btn {
+      margin-left: auto;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 17px;
+      color: #666;
+      line-height: 1;
+    }
+    .settings-btn:hover { color: #aaa; }
+
+    .main { padding: 14px 16px; }
+
+    .input-group { margin-bottom: 10px; }
+    .input-group label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      margin-bottom: 5px;
+    }
+    input[type="text"],
+    input[type="password"],
+    select {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid #333;
+      border-radius: 6px;
+      font-size: 13px;
+      outline: none;
+      background: #242424;
+      color: #e8e8e8;
+      transition: border-color 0.15s;
+    }
+    input:focus, select:focus { border-color: #d97706; }
+    select option { background: #242424; }
+
+    .btn {
+      width: 100%;
+      padding: 10px;
+      background: #d97706;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn:hover { background: #b45309; }
+    .btn:disabled { background: #333; color: #666; cursor: not-allowed; }
+
+    .result {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 8px;
+      text-align: center;
+      display: none;
+    }
+    .result.success { background: #2a1f00; border: 1px solid #3d2e00; }
+    .result.error { background: #2a0a0a; border: 1px solid #3d1010; }
+
+    .code-display {
+      font-size: 30px;
+      font-weight: 700;
+      letter-spacing: 6px;
+      color: #d97706;
+      margin-bottom: 4px;
+    }
+    .result.error .code-display { display: none; }
+    .result-label { font-size: 12px; color: #888; }
+    .result.error .result-label { color: #f87171; font-weight: 500; }
+
+    .divider { border: none; border-top: 1px solid #2e2e2e; }
+
+    .settings-panel { padding: 14px 16px; display: none; }
+    .settings-panel.open { display: block; }
+    .settings-panel h2 {
+      font-size: 11px;
+      font-weight: 700;
+      color: #555;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      margin-bottom: 12px;
+    }
+
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .toggle-row span { font-size: 13px; color: #e8e8e8; }
+
+    .toggle {
+      position: relative;
+      width: 36px;
+      height: 20px;
+      flex-shrink: 0;
+    }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .slider {
+      position: absolute;
+      inset: 0;
+      background: #333;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .slider::before {
+      content: '';
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      left: 3px;
+      top: 3px;
+      background: #888;
+      border-radius: 50%;
+      transition: transform 0.2s;
+    }
+    input:checked + .slider { background: #d97706; }
+    input:checked + .slider::before { background: white; transform: translateX(16px); }
+
+    .ai-options { display: none; }
+    .ai-options.visible { display: block; }
+
+    .api-key-note {
+      font-size: 11px;
+      color: #555;
+      margin-top: -6px;
+      margin-bottom: 10px;
+      line-height: 1.4;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255,255,255,0.2);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <img src="icons/icon32.png" alt="CodeHound logo">
+    <h1>CodeHound</h1>
+    <button class="settings-btn" id="settingsToggle" title="Settings">⚙️</button>
+  </div>
+
+  <div class="main">
+    <div class="input-group">
+      <label for="searchQuery">Search query <span style="font-weight:400;text-transform:none">(optional)</span></label>
+      <input type="text" id="searchQuery" placeholder="e.g. from:no-reply@example.com">
+    </div>
+    <button class="btn" id="retrieveBtn">🐾 Retrieve Code</button>
+    <div class="result" id="result">
+      <div class="code-display" id="codeDisplay"></div>
+      <div class="result-label" id="resultLabel"></div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <div class="settings-panel" id="settingsPanel">
+    <h2>Settings</h2>
+
+    <div class="toggle-row">
+      <span>AI-assisted selection</span>
+      <label class="toggle">
+        <input type="checkbox" id="aiToggle">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="ai-options" id="aiOptions">
+      <div class="input-group">
+        <label for="aiProvider">AI Provider</label>
+        <select id="aiProvider">
+          <option value="claude">Claude (Anthropic)</option>
+          <option value="openai">OpenAI (GPT)</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label for="apiKey">API Key</label>
+        <input type="password" id="apiKey" placeholder="Paste your API key here">
+      </div>
+      <p class="api-key-note">Your key is stored locally on your device and only sent to the selected AI provider.</p>
+    </div>
+
+    <button class="btn" id="saveSettings">Save Settings</button>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
