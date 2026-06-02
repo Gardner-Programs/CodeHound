@@ -12,6 +12,13 @@ A browser extension that sniffs out verification codes from your Gmail and copie
 - Optional AI mode (Claude or OpenAI) to identify the right email when pattern matching falls short
 - Works on both Chrome and Firefox
 
+## Store Listings
+
+- **Firefox**: [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/codehound/) — listed, pending GCP OAuth review
+- **Chrome**: [Chrome Web Store](https://chrome.google.com/webstore/detail/codehound/ednlllcegoibkamijhpcnaihaclmahgl) — pending review
+
+> Both listings are awaiting Google OAuth app verification. Gmail access will not work until that review completes.
+
 ## Installation
 
 ### Chrome
