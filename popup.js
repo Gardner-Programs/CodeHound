@@ -1,4 +1,4 @@
-const isFirefox = typeof browser !== 'undefined';
+const isFirefox = typeof browser !== 'undefined' && browser.runtime?.id && typeof chrome === 'undefined';
 const api = isFirefox ? browser : chrome;
 
 const CLIENT_ID = '924033159870-g4guhjc65ps1i7vbqcgteai666hv04pb.apps.googleusercontent.com';
@@ -35,6 +35,19 @@ settingsToggle.addEventListener('click', () => {
 
 aiToggle.addEventListener('change', () => {
   aiOptions.classList.toggle('visible', aiToggle.checked);
+});
+
+document.getElementById('signOutBtn').addEventListener('click', () => {
+  chrome.identity.getAuthToken({ interactive: false }, (token) => {
+    if (token) {
+      chrome.identity.removeCachedAuthToken({ token }, async () => {
+        await fetch(`https://accounts.google.com/o/oauth2/revoke?token=${token}`);
+        const btn = document.getElementById('signOutBtn');
+        btn.textContent = 'Signed Out ✓';
+        setTimeout(() => { btn.textContent = 'Sign Out of Google'; }, 1500);
+      });
+    }
+  });
 });
 
 saveSettingsBtn.addEventListener('click', () => {

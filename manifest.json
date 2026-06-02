@@ -6,6 +6,7 @@
   "permissions": ["identity", "clipboardWrite", "storage"],
   "host_permissions": [
     "https://www.googleapis.com/*",
+    "https://accounts.google.com/*",
     "https://api.anthropic.com/*",
     "https://api.openai.com/*"
   ],
