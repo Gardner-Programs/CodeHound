@@ -62,3 +62,7 @@ See the full [Privacy Policy](https://gardner-programs.github.io/codehound-priva
 ## License
 
 MIT
+
+## Attributions
+
+Dog icon by [deemakdaksina](https://www.flaticon.com/free-icons/dog) — Flaticon
