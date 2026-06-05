@@ -64,7 +64,7 @@ AI mode sends email subjects (not full email content) to the selected AI provide
 
 CodeHound does not collect, store, or transmit any of your data. All processing happens locally in your browser. If AI mode is enabled, only email subjects are sent to the AI provider you configure — no full email content is ever shared.
 
-See the full [Privacy Policy](https://gardner-programs.github.io/codehound-privacy.html).
+See the full [Privacy Policy](https://gardner-programs.xyz/codehound-privacy.html).
 
 ## License
 
